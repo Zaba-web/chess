@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "es2019",
+        "sourceMap": true,
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "allowJs": true,
+        "lib": ["ES2019", "DOM"],
+        "outDir": "./dist/",
+        "noImplicitAny": true
+    }
+}

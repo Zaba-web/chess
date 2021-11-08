@@ -1,0 +1,52 @@
+{
+  "name": "chess",
+  "version": "1.0.0",
+  "description": "Simple chess implementation written with typescript",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "webpack --mode development --watch",
+    "prod": "webpack --mode production",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zaba-web/chess.git"
+  },
+  "author": "Andriy Sotnyk <lodochnikkot@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zaba-web/chess/issues"
+  },
+  "homepage": "https://github.com/Zaba-web/chess#readme",
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "@types/node": "^16.11.6",
+    "@types/three": "^0.133.1",
+    "jest": "^27.3.1",
+    "sass": "^1.43.4",
+    "sass-loader": "^12.3.0",
+    "ts-jest": "^27.0.7",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.4.4",
+    "webpack": "^5.62.1",
+    "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {
+    "three": "^0.134.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  }
+}
