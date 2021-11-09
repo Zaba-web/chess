@@ -43,7 +43,7 @@ export default class Game {
      * Creates event listener that listen click on game board
      */
     public setUpClickEventListener(): void {
-        this.graphicsRenderer.createClickOnObjectsHandler([this.boardMesh], (intersection) => {
+        this.graphicsRenderer.createClickOnObjectsHandler([this.boardMesh], (intersection: Intersection) => {
             const [row, column] = this.determinateClickedCell(intersection);
             this.handleCellClick(row, column);
         });
