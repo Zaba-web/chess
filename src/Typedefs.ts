@@ -17,9 +17,16 @@ enum FigureColor {
     White = 0xFFFFFF
 }
 
+enum MoveDirection {
+    Forward,
+    Back,
+    Left,
+    Right
+}
+
 interface CellCoordinates {
     row: number,
     column: number
 }
 
-export {EmptyCell, Cell, FiguresMeshURLs, FigureColor, CellCoordinates}
+export {EmptyCell, Cell, FiguresMeshURLs, FigureColor, CellCoordinates, MoveDirection}
