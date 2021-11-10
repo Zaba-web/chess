@@ -1,7 +1,8 @@
 import { FigureGenerator } from "./FigureGenerator";
 import Figure from "./Figures/Figure";
+import Pawn from "./Figures/Pawn";
 
-import {EmptyCell, Cell, FigureColor} from "./Typedefs";
+import {EmptyCell, Cell, FigureColor, MoveDirection, CellCoordinates} from "./Typedefs";
 
 /**
  * Represents chess board
@@ -37,34 +38,6 @@ export default class Board {
      */
     public getCellContainment(row: number, column: number): Cell {
         return this.state[row][column];
-    }
-
-    /**
-     * Initializes process of making a move
-     * @param currentRow row that selected figure stands on
-     * @param currentColumn column that selected figure stands on
-     * @param newRow target row
-     * @param newColumn target column
-     */
-    public tryToMakeMove(currentRow: number, currentColumn: number, newRow: number, newColumn: number): boolean {
-        if(!(this._state[currentRow][currentColumn] instanceof Figure)) {
-            return ;
-        }
-
-        const figureToMove = this._state[currentRow][currentColumn] as Figure;
-
-        const figureCanMakeSuchMove = figureToMove.canMoveToCell(newRow, newColumn);
-
-        if (!figureCanMakeSuchMove) {
-            return false;
-        }
-
-        figureToMove.setPosition(newRow, newColumn, this.cellOffset);
-
-        this._state[currentRow][currentColumn] = false;
-        this._state[newRow][newColumn] = figureToMove;
-
-        return true;
     }
 
     private initializeDefaultBoardState(): void {
