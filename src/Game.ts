@@ -1,6 +1,7 @@
 import GraphicsRenderer from "./GraphicsRenderer"
 import Board from "./Board";
 import Figure from "./Figures/Figure";
+import FigureMovementController from "./FigureMovementController";
 import { FigureColor, CellCoordinates } from "./Typedefs";
 
 import {Mesh} from "three";
@@ -15,16 +16,18 @@ export default class Game {
     private graphicsRenderer: GraphicsRenderer;
     private board: Board;
     private boardMesh: Mesh;
+    private currentTurnBy: FigureColor;
+    private figureMovementController: FigureMovementController;
     private selectedCell: CellCoordinates = {
         row: null, 
         column: null
     };
-    private currentTurnBy: FigureColor;
 
     constructor () {
         this.graphicsRenderer = new GraphicsRenderer();
         this.currentTurnBy = FigureColor.White;
         this.board = new Board();
+        this.figureMovementController = new FigureMovementController(this.board);
     }
 
     /**
@@ -78,7 +81,7 @@ export default class Game {
             } 
             
             if (!clickedCellIsNotEmpty || !currentPlayersOwnsFigure) {
-                moveMade = this.board.tryToMakeMove(this.selectedCell.row, this.selectedCell.column, row, column)
+                moveMade = this.figureMovementController.setFigurePosition(this.selectedCell.row, this.selectedCell.column, row, column)
             }
         }
 
@@ -87,7 +90,7 @@ export default class Game {
             this.changePlayer();
         }
 
-        console.log(this.selectedCell);
+        //console.log(this.selectedCell);
     }
 
     private selectCell(row: number, column: number): void {
