@@ -1,15 +1,34 @@
 import Figure from "./Figure";
-import { FiguresMeshURLs } from "../Typedefs";
+import { FigureMoveAbility, FiguresMeshURLs, MoveDirection } from "../Typedefs";
 
 /**
  * Rook figure implementation
  */
 export default class Rook extends Figure {
-    public canMoveToCell(row: number, column: number): boolean {
-        return true;
-    }
-
     public getFigureMeshURL(): FiguresMeshURLs {
         return FiguresMeshURLs.RookMesh;
+    }
+
+    public getMovePattern(): FigureMoveAbility[] {
+        const movePattern: FigureMoveAbility[] = [
+            {
+                range: 8,
+                direction: MoveDirection.Forward
+            },
+            {
+                range: 8,
+                direction: MoveDirection.Back
+            },
+            {
+                range: 8,
+                direction: MoveDirection.Right
+            },
+            {
+                range: 8,
+                direction: MoveDirection.Left
+            }
+        ]
+
+        return movePattern;
     }
 }
