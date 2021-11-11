@@ -1,6 +1,5 @@
 import { FigureGenerator } from "./FigureGenerator";
 import Figure from "./Figures/Figure";
-import Pawn from "./Figures/Pawn";
 
 import {EmptyCell, Cell, FigureColor, MoveDirection, CellCoordinates} from "./Typedefs";
 
@@ -36,8 +35,26 @@ export default class Board {
     /**
      * Get value of board cell
      */
-    public getCellContainment(row: number, column: number): Cell {
-        return this.state[row][column];
+    public getCellContainment(cell: CellCoordinates): Cell {
+        return this.state[cell.row][cell.column];
+    }
+
+    public setFigurePosition(currentCell: CellCoordinates, newCell: CellCoordinates): boolean {
+        if (this.getCellContainment(newCell) instanceof Figure) {
+            const capturedFigure = this.getCellContainment(newCell) as Figure;
+            capturedFigure.setPosition({row: -200, column: -200});
+        }
+
+        const figureToMove = this.state[currentCell.row][currentCell.column] as Figure;
+
+        figureToMove.setPosition(newCell, this.cellOffset);
+
+        this.state[currentCell.row][currentCell.column] = false;
+        this.state[newCell.row][newCell.column] = figureToMove;
+
+        console.table(this.state);
+
+        return true;
     }
 
     private initializeDefaultBoardState(): void {
