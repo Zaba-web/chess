@@ -47,20 +47,23 @@ export default class Game {
      */
     public setUpClickEventListener(): void {
         this.graphicsRenderer.createClickOnObjectsHandler([this.boardMesh], (intersection: Intersection) => {
-            const [row, column] = this.determinateClickedCell(intersection);
-            this.handleCellClick(row, column);
+            const cell = this.determinateClickedCell(intersection);
+            this.handleCellClick(cell);
         });
     }
 
-    private determinateClickedCell(clickOnMeshData: Intersection): number[] {
+    private determinateClickedCell(clickOnMeshData: Intersection): CellCoordinates {
         let row = Math.abs(Math.round(clickOnMeshData.point.z + this.board.cellOffset));
         let column = Math.abs(Math.round(clickOnMeshData.point.x + this.board.cellOffset));
 
-        return [row, column];
+        return {
+            row: row, 
+            column: column
+        };
     }
 
-    private handleCellClick(row: number, column: number): void {
-        const clickedCell = this.board.getCellContainment(row, column);
+    private handleCellClick(cell: CellCoordinates): void {
+        const clickedCell = this.board.getCellContainment(cell);
 
         const clickedCellIsNotEmpty = clickedCell instanceof Figure;
 
@@ -69,7 +72,7 @@ export default class Game {
 
         if (this.noSelectedCell()) {
             if (clickedCellIsNotEmpty && currentPlayersOwnsFigure) {
-                this.selectCell(row, column);
+                this.selectCell(cell);
             }
         }  
         
@@ -77,11 +80,11 @@ export default class Game {
 
         if (!this.noSelectedCell()) {
             if (currentPlayersOwnsFigure) {
-                this.selectCell(row, column);
+                this.selectCell(cell);
             } 
             
             if (!clickedCellIsNotEmpty || !currentPlayersOwnsFigure) {
-                moveMade = this.figureMovementController.setFigurePosition(this.selectedCell.row, this.selectedCell.column, row, column)
+                moveMade = this.figureMovementController.makeMove(this.selectedCell, cell);
             }
         }
 
@@ -89,14 +92,12 @@ export default class Game {
             this.resetSelectedCell();
             this.changePlayer();
         }
-
-        //console.log(this.selectedCell);
     }
 
-    private selectCell(row: number, column: number): void {
+    private selectCell(cell: CellCoordinates): void {
         this.selectedCell = {
-            row: row,
-            column: column
+            row: cell.row,
+            column: cell.column
         };
     }
 

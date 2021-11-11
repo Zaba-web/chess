@@ -23,7 +23,8 @@ export class FigureGenerator {
 
         let pawnRow: Figure [] = [];
         for(let i = 0; i < rowLength; i++) {
-            let pawn = new Pawn(rowPosition, i, colorOfSide);
+            const cell = {row: rowPosition, column: i};
+            let pawn = new Pawn(cell, colorOfSide);
             pawnRow.push(pawn);
         }
 
@@ -45,7 +46,8 @@ export class FigureGenerator {
         let mainRow: Figure [] = [];
         for(let i = 0; i < rowLength; i++) {
             const figureConstructor = mainFigures[i];
-            let figure = new figureConstructor(rowPosition, i, colorOfSide);
+            const cell = {row: rowPosition, column: i};
+            let figure = new figureConstructor(cell, colorOfSide);
 
             mainRow.push(figure);
         }

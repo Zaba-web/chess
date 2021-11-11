@@ -24,9 +24,14 @@ enum MoveDirection {
     Right
 }
 
+interface FigureMoveAbility {
+    direction: MoveDirection, 
+    range: number
+}
+
 interface CellCoordinates {
     row: number,
     column: number
 }
 
-export {EmptyCell, Cell, FiguresMeshURLs, FigureColor, CellCoordinates, MoveDirection}
+export {EmptyCell, Cell, FiguresMeshURLs, FigureColor, CellCoordinates, MoveDirection, FigureMoveAbility}
