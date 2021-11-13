@@ -52,6 +52,11 @@ export default class Game {
         });
     }
 
+    /**
+     * Get coordinates of clicked cell in board format
+     * @param clickOnMeshData object with information about clicked mesh
+     * @returns 
+     */
     private determinateClickedCell(clickOnMeshData: Intersection): CellCoordinates {
         let row = Math.abs(Math.round(clickOnMeshData.point.z + this.board.cellOffset));
         let column = Math.abs(Math.round(clickOnMeshData.point.x + this.board.cellOffset));
