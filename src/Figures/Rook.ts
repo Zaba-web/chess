@@ -31,4 +31,8 @@ export default class Rook extends Figure {
 
         return movePattern;
     }
+
+    public cellSuitableForMove(cellCaptured: boolean, cellUnderAttack: boolean): boolean {
+        return true;
+    }
 }

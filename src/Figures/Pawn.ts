@@ -5,26 +5,24 @@ import { FigureColor, FiguresMeshURLs, FigureMoveAbility, MoveDirection} from ".
  * Pawn figure implementation
  */
 export default class Pawn extends Figure {
-    private moveRange: number = 2;
-
     public getFigureMeshURL(): FiguresMeshURLs {
         return FiguresMeshURLs.PawnMesh;
     }
 
     public getMovePattern(): FigureMoveAbility[] {
         let movePattern: FigureMoveAbility = {
-            range: this.moveRange,
-            direction: MoveDirection.Forward
-        }
-
-        if (this.color == FigureColor.Black) {
-            movePattern.direction = MoveDirection.Back;
+            range: this.firstMoveDone ? 1 : 2,
+            direction: this.color == FigureColor.White ? MoveDirection.Forward : MoveDirection.Back
         }
 
         return [movePattern];
     }
 
-    public moveDone() {
-        this.moveRange = 1;
+    public cellSuitableForMove(cellCaptured: boolean, cellUnderAttack: boolean): boolean {
+        if(cellCaptured) {
+            return false;
+        }
+
+        return true;
     }
 }

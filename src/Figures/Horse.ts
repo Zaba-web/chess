@@ -1,15 +1,23 @@
 import Figure from "./Figure";
-import { FiguresMeshURLs } from "../Typedefs";
+import { FigureMoveAbility, FiguresMeshURLs } from "../Typedefs";
 
 /**
  * Horse figure implementation
  */
 export default class Horse extends Figure {
-    public canMoveToCell(row: number, column: number): boolean {
-        return true;
+    public getLinearMovementPattern(): boolean {
+        return false;
     }
 
     public getFigureMeshURL(): FiguresMeshURLs {
         return FiguresMeshURLs.HorseMesh;
+    }
+
+    public getMovePattern(): FigureMoveAbility[] {
+        return [];
+    }
+
+    public cellSuitableForMove(cellCaptured: boolean, cellUnderAttack: boolean): boolean {
+        return true;
     }
 }
