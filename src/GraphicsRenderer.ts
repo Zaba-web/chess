@@ -6,7 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import Horse from "./Figures/Horse";
 import { FigureColor } from "./Typedefs";
-import { off } from "process";
+
 /**
  * Class controlling graphics render process  
  * */
@@ -40,7 +40,6 @@ export default class GraphicsRenderer {
 
         // Orbit controls plugin. Adds camera movement by mouse
         this.cameraControls = new OrbitControls(this.camera, this.renderer.domElement);
-        
     }
 
     /**
