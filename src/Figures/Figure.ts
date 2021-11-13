@@ -1,4 +1,4 @@
-import { FiguresMeshURLs, FigureColor, CellCoordinates } from "../Typedefs";
+import { FiguresMeshURLs, FigureColor, CellCoordinates, MoveDirection, FigureMoveAbility } from "../Typedefs";
 import { Object3D } from "three";
 /**
  * Abstract class that describes chess figures
@@ -8,25 +8,27 @@ export default abstract class Figure {
     private columnPosition: number;
     private _color: FigureColor;
     private objectModel: Object3D;
+    protected firstMoveDone: boolean;
 
     /**
      * 
-     * @param startRowPosition Row position on startup
-     * @param startColumnPosition Column position on startup
+     * @param startCell Start position on startup
+     * @param color Figure color
      */
-    constructor (startRowPosition: number, startColumnPosition: number, color: FigureColor) {
-        this.setPosition(startRowPosition, startColumnPosition);
+    constructor (startCell: CellCoordinates, color: FigureColor) {
+        this.setPosition(startCell);
         this._color = color;
+        this.firstMoveDone = false;
     }
 
     /**
-     * Change position of figure. 
-     * @param rowPosition
-     * @param columnPosition 
+     * Change position of figure.  
+     * @param cell
+     * @param offset // difference between 0 0 coordinates on scene and 0 0 cell on board
      */
-    public setPosition(rowPosition: number, columnPosition: number, offset?: number): void {
-        this.rowPosition = rowPosition;
-        this.columnPosition = columnPosition;
+    public setPosition(cell: CellCoordinates, offset?: number): void {
+        this.rowPosition = cell.row;
+        this.columnPosition = cell.column;
 
         this.updateModelPosition(offset);
     }
@@ -50,16 +52,19 @@ export default abstract class Figure {
         return this.objectModel;
     }
 
-    public abstract canMoveToCell(row: number, column: number): boolean;
+    public moveDone (): void {
+        this.firstMoveDone = true;
+    }
 
     public abstract getFigureMeshURL(): FiguresMeshURLs;
 
+    public abstract getMovePattern(): FigureMoveAbility[];
+
+    public abstract cellSuitableForMove(cellCaptured: boolean, cellUnderAttack: boolean): boolean;
+
     private updateModelPosition(offset: number): void {
-        if(this.objectModel) {
-            this.objectModel.position.set(
-                this.columnPosition - offset, 
-                0.5, 
-                this.rowPosition - offset);
+        if(this.objectModel) { 
+            this.objectModel.position.set(this.columnPosition - offset, 0.5, this.rowPosition - offset);
         }
     }
 }
