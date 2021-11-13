@@ -21,7 +21,11 @@ enum MoveDirection {
     Forward,
     Back,
     Left,
-    Right
+    Right,
+    DiagonalTopLeft,
+    DiagonalBottomLeft,
+    DiagonalTopRight,
+    DiagonalBottomRight
 }
 
 interface FigureMoveAbility {
@@ -34,4 +38,9 @@ interface CellCoordinates {
     column: number
 }
 
-export {EmptyCell, Cell, FiguresMeshURLs, FigureColor, CellCoordinates, MoveDirection, FigureMoveAbility}
+interface FigureMoveData {
+    moveDirectionAllowed: boolean, 
+    madeMoveRange: number
+}
+
+export {EmptyCell, Cell, FiguresMeshURLs, FigureColor, CellCoordinates, MoveDirection, FigureMoveAbility, FigureMoveData}
