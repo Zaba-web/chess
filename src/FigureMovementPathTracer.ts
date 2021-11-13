@@ -1,9 +1,18 @@
-import { start } from "repl";
 import Board from "./Board";
+import { CellCoordinates } from "./Typedefs";
 
-import Figure from "./Figures/Figure";
-import { CellCoordinates, MoveDirection } from "./Typedefs";
+enum Step {
+        Forward = -1,
+        Back = 1,
+        Right = 1,
+        Left = -1,
+        LeftDiagonalTop = -1,
+        LeftDiagonalBottom = 1
+}
 
+/**
+ * Class that calculates if path of move is clear
+ */
 export default class FigureMovementPathTracer {
     private board: Board;
 
@@ -11,77 +20,144 @@ export default class FigureMovementPathTracer {
         this.board = board;
     }
 
-    public isForwardMovePossible(startCell: CellCoordinates, moveLength: number): boolean {
-        return this.isVerticalMovePossible(startCell, moveLength, MoveDirection.Forward);
+    public isForwardMovePossible(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number): boolean {
+        return this.isVerticalClear(startCell, targetCell, moveLength, Step.Forward, this.biggerThanComparator);
     }
 
-    public isBackMovePossible(startCell: CellCoordinates, moveLength: number): boolean {
-        return this.isVerticalMovePossible(startCell, moveLength, MoveDirection.Back);
+    public isBackMovePossible(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number): boolean {
+        return this.isVerticalClear(startCell, targetCell, moveLength, Step.Back, this.lessThanComparator);
     }
 
-    public isRightMovePossible(startCell: CellCoordinates, moveLength: number): boolean {
-        return this.isHorizontalMovePossible(startCell, moveLength, MoveDirection.Right);
+    public isRightMovePossible(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number): boolean {
+        return this.isHorizontalClear(startCell, targetCell, moveLength, Step.Right, this.lessThanComparator)
     }
 
-    public isLeftMovePossible(startCell: CellCoordinates, moveLength: number): boolean {
-        return this.isHorizontalMovePossible(startCell, moveLength, MoveDirection.Left);
+    public isLeftMovePossible(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number): boolean {
+        return this.isHorizontalClear(startCell, targetCell, moveLength, Step.Left, this.biggerThanComparator)
     }
 
-    private isVerticalMovePossible(startCell: CellCoordinates, moveLength: number, direction: MoveDirection): boolean {
-        const moveDirectionOffset = direction == MoveDirection.Forward ? -1 : 1;
+    public isDiagonalTopLeftMovePossible(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number): boolean {
+        return this.isDiagonalClear(startCell, targetCell, moveLength, Step.Left, Step.Forward, this.biggerThanComparator, this.biggerThanComparator);
+    }
 
-        let currentRow = startCell.row + moveDirectionOffset;
-        let movePossible = true;
-        const column = startCell.column;
-        const moveLimit = currentRow - moveLength;
+    public isDiagonalBottomLeftMovePossible(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number): boolean {
+        return this.isDiagonalClear(startCell, targetCell, moveLength, Step.Back, Step.Right, this.lessThanComparator, this.lessThanComparator);
+    }
 
-        let limitNotReached: boolean;
+    public isDiagonalTopRightMovePossible(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number): boolean {
+        return this.isDiagonalClear(startCell, targetCell, moveLength, Step.Forward, Step.Right, this.biggerThanComparator, this.lessThanComparator);
+    }
+    
+    public isDiagonalBottomRightMovePossible(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number): boolean {
+        return this.isDiagonalClear(startCell, targetCell, moveLength, Step.Back, Step.Left, this.lessThanComparator, this.biggerThanComparator);
+    }
 
-        const calculateLoopProgress = () => {
-            limitNotReached = direction == MoveDirection.Forward ? currentRow > moveLimit : currentRow < moveLimit;
-        }
+    /**
+     * Helper method that compares two numbers
+     * @param number1 supposed to be greater
+     * @param number2 supposed to be lower
+     * @returns 
+     */
+    private biggerThanComparator(number1: number, number2: number): boolean {
+        return number1 > number2;
+    }
 
-        calculateLoopProgress();
+    /**
+     * Helper method that compares two numbers
+     * @param number1 supposed to be lower
+     * @param number2 supposed to be greater
+     * @returns 
+     */
+    private lessThanComparator(number1: number, number2: number): boolean {
+        return number1 < number2;
+    }
 
-        while (limitNotReached) {
-            let notTargetCell = direction == MoveDirection.Forward ? currentRow > moveLimit + 1 : currentRow < moveLimit - 1;
+    /**
+     * Find obstacles on vertical line.
+     * If there is a figures between start and target cells, path is considered not clear
+     * @param startCell cell where from figure moves
+     * @param targetCell cell where to figure moves
+     * @param moveLength count of cells that it needs to make to reach target cell
+     * @param step value by which current row increments at each iteration
+     * @param compare function to compare current row with target row
+     * @returns 
+     */
+    private isVerticalClear(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number, step: number, compare: Function): boolean {
+        let currentRow = startCell.row + step;
+        const targetRow = startCell.row + moveLength * step;
 
-            if(notTargetCell && this.board.state[currentRow][column] instanceof Figure) {
-                movePossible = false;
+        while (compare(currentRow, targetRow)) {
+            let notLastCell = compare(currentRow, targetCell.row);
+
+            if(notLastCell && this.board.isCellCaptured({row: currentRow, column: startCell.column})) {
+                return false;
             }
 
-            currentRow += moveDirectionOffset;
-            calculateLoopProgress();
+            currentRow += step;
         }
 
-        return movePossible;
+        return true;
     }
 
-    public isHorizontalMovePossible(startCell: CellCoordinates, moveLength: number, direction: MoveDirection): boolean {
-        const moveDirectionOffset = direction == MoveDirection.Left ? -1 : 1;
+    /**
+     * Find obstacles on horizontal line.
+     * If there is a figures between start and target cells, path is considered not clear
+     * @param startCell cell where from figure moves
+     * @param targetCell cell where to figure moves
+     * @param moveLength count of cells that it needs to make to reach target cell
+     * @param step value by which current column increments at each iteration
+     * @param compare function to compare current column with target column
+     * @returns 
+     */
 
-        let currentColumn = startCell.column + moveDirectionOffset;
-        let movePossible = true;
-        const row = startCell.row;
-        const moveLimit = currentColumn - moveLength;
+    private isHorizontalClear(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number, step: number, compare: Function): boolean {
+        let currentColumn = startCell.column + step;
+        const targetColumn = startCell.column + moveLength * step;
 
-        let limitNotReached: boolean;
+        while (compare(currentColumn, targetColumn)) {
+            let notLastCell = compare(currentColumn, targetCell.column);
 
-        const calculateLoopProgress = () => {
-            limitNotReached = direction == MoveDirection.Left ? currentColumn > moveLimit : currentColumn < moveLimit;
-        }
-
-        while (limitNotReached) {
-            let notTargetCell = direction == MoveDirection.Left ? currentColumn > moveLimit + 1 : currentColumn < moveLimit - 1;
-
-            if(notTargetCell && this.board.state[row][currentColumn] instanceof Figure) {
-                movePossible = false;
+            if(notLastCell && this.board.isCellCaptured({row: startCell.row, column: currentColumn})) {
+                return false;
             }
 
-            currentColumn += moveDirectionOffset;
-            calculateLoopProgress();
+            currentColumn += step;
         }
 
-        return movePossible;
+        return true;
     }
+
+    /**
+     * Find obstacles on diagonal lines.
+     * If there is a figures between start and target cells, path is considered not clear
+     * @param startCell cell where from figure moves
+     * @param targetCell cell where to figure moves
+     * @param moveLength count of cells that it needs to make to reach target cell
+     * @param rowStep value by which current row increments at each iteration
+     * @param columnStep value by which current column increments at each iteration
+     * @param compareRows function to compare current row with target row
+     * @param compareColumns function to compare current column with target column
+     * @returns 
+     */
+    private isDiagonalClear(startCell: CellCoordinates, targetCell: CellCoordinates, moveLength: number, rowStep: number, columnStep: number, compareRows: Function, compareColumns: Function): boolean {
+        let currentColumn = startCell.column + columnStep;
+        let currentRow = startCell.row + rowStep;
+
+        let targetRow = startCell.row + moveLength * rowStep;
+        let targetColumn = startCell.column + moveLength * columnStep;
+
+        while (compareRows(currentRow, targetRow) && compareColumns(currentColumn, targetColumn)) {
+            let notLastCell = compareRows(currentRow, targetCell.row) && compareColumns(currentColumn, targetCell.column);
+            
+            if(notLastCell && this.board.isCellCaptured({row: currentRow, column: currentColumn})) {
+                return false;
+            }
+
+            currentColumn += columnStep;
+            currentRow += rowStep;
+        }
+
+        return true;
+    }
+
 }
