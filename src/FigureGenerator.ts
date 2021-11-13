@@ -1,5 +1,5 @@
 import Figure from "./Figures/Figure";
-import { FigureColor } from "./Typedefs";
+import { Cell, EmptyCell, FigureColor } from "./Typedefs";
 import Pawn from "./Figures/Pawn";
 import Rook from "./Figures/Rook";
 import Horse from "./Figures/Horse";
@@ -17,7 +17,7 @@ export class FigureGenerator {
      * @param rowLength 8 by default
      * @returns Array of Figure
      */
-    public getPawnRow(colorOfSide: FigureColor, rowLength: number = 8): Figure[] {
+     private getPawnRow(colorOfSide: FigureColor, rowLength: number = 8): Figure[] {
         // select row position for pawns: 1 for black color and rowLength - 2 for white
         const rowPosition = colorOfSide == FigureColor.Black ? 1 : rowLength - 2; 
 
@@ -37,7 +37,7 @@ export class FigureGenerator {
      * @param rowLength 8 by default
      * @returns Array of Figure
      */
-    public getMainFiguresRow(colorOfSide: FigureColor, rowLength: number = 8): Figure[] {
+     private getMainFiguresRow(colorOfSide: FigureColor, rowLength: number = 8): Figure[] {
         const mainFigures = [Rook, Horse, Bishop, Queen, King, Bishop, Horse, Rook];
         
         // select row position for main figures: 0 for black color and rowLength - 1 for white
@@ -53,5 +53,47 @@ export class FigureGenerator {
         }
         
         return mainRow;
+    }
+
+    /**
+     * Generates line of empty cells
+     * @param count length of line
+     * @returns 
+     */
+    private getEmptyLine(count: number = 8): Cell[] {
+        let emptyCells: Cell[] = [];
+        const emptyCell: EmptyCell = false;
+
+        for(let i = 0; i < count; i++) {
+            emptyCells.push(emptyCell);
+        }
+
+        return emptyCells;
+    }
+
+    /**
+     * Generates default set of figures for start
+     * @returns 
+     */
+    public generateDefaultBoardConfig(): Cell[][] {
+
+        const blackPawns = this.getPawnRow(FigureColor.Black);
+        const blackMainFigures = this.getMainFiguresRow(FigureColor.Black);
+
+        const whitePawns = this.getPawnRow(FigureColor.White);
+        const whiteMainFigures = this.getMainFiguresRow(FigureColor.White);
+
+        const state = [
+            blackMainFigures,
+            blackPawns,
+            this.getEmptyLine(),
+            this.getEmptyLine(),
+            this.getEmptyLine(),
+            this.getEmptyLine(),
+            whitePawns,
+            whiteMainFigures
+        ];
+
+        return state;
     }
 }
