@@ -1,7 +1,7 @@
 import { FigureGenerator } from "./FigureGenerator";
 import Figure from "./Figures/Figure";
 
-import {EmptyCell, Cell, FigureColor, MoveDirection, CellCoordinates} from "./Typedefs";
+import {Cell, CellCoordinates} from "./Typedefs";
 
 /**
  * Represents chess board
@@ -39,6 +39,34 @@ export default class Board {
         return this.state[cell.row][cell.column];
     }
 
+    /**
+     * Check if there is a figure on cell
+     * @param cell Cell to check
+     * @returns 
+     */
+    public isCellCaptured(cell: CellCoordinates): boolean {
+        if(this.getCellContainment(cell) instanceof Figure) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Check if there are enemy figures that can reach this cell
+     * @param cell cell to check
+     * @returns 
+     */
+    public isCellUnderAttack(cell: CellCoordinates): boolean {
+        return false;
+    }
+
+    /**
+     * Change figure poisition on the board
+     * @param currentCell cell where needed figure is
+     * @param newCell cell where it needs to be placed
+     * @returns 
+     */
     public setFigurePosition(currentCell: CellCoordinates, newCell: CellCoordinates): boolean {
         if (this.getCellContainment(newCell) instanceof Figure) {
             const capturedFigure = this.getCellContainment(newCell) as Figure;
@@ -52,30 +80,10 @@ export default class Board {
         this.state[currentCell.row][currentCell.column] = false;
         this.state[newCell.row][newCell.column] = figureToMove;
 
-        console.table(this.state);
-
         return true;
     }
 
     private initializeDefaultBoardState(): void {
-        const emptyCell: EmptyCell = false;
-
-        const blackPawns = this.figureGenerator.getPawnRow(FigureColor.Black);
-        const blackMainFigures = this.figureGenerator.getMainFiguresRow(FigureColor.Black);
-
-        const whitePawns = this.figureGenerator.getPawnRow(FigureColor.White);
-        const whiteMainFigures = this.figureGenerator.getMainFiguresRow(FigureColor.White);
-
-        this._state = [
-            blackMainFigures,
-            blackPawns,
-            [emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell],
-            [emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell],
-            [emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell],
-            [emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell, emptyCell],
-            whitePawns,
-            whiteMainFigures
-        ];
-
+        this._state = this.figureGenerator.generateDefaultBoardConfig();
     }
 }
