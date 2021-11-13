@@ -5,30 +5,23 @@ import Bishop from "../src/Figures/Bishop";
 import Figure from "../src/Figures/Figure";
 import Horse from "../src/Figures/Horse";
 import King from "../src/Figures/King";
-import Queen from "../src/Figures/Queen";
 import Rook from "../src/Figures/Rook";
+import Pawn from "../src/Figures/Pawn";
 
 describe("Figure generator class should: ", () => {
     const figureGenerator = new FigureGenerator();
 
-    test("generate a pawn row", ()=>{
-        const figures = figureGenerator.getPawnRow(FigureColor.Black);
+    test("generate a default set of figures", ()=>{
+        const emptyLines = figureGenerator.generateDefaultBoardConfig();
 
-        expect(figures[0]).toBeInstanceOf(Figure);
-        expect(figures[7]).toBeInstanceOf(Figure);
+        expect(emptyLines[0][0]).toBeInstanceOf(Rook);
+        expect(emptyLines[1][0]).toBeInstanceOf(Pawn);
+        expect(emptyLines[2][0]).toBeFalsy();
+        expect(emptyLines[5][0]).toBeFalsy();
+        expect(emptyLines[6][0]).toBeInstanceOf(Pawn);
+        expect(emptyLines[7][0]).toBeInstanceOf(Rook);
 
-        expect(figures[0].color).toEqual(FigureColor.Black);
-    });
-
-    test("generate a row of main figures", ()=>{
-        const figures = figureGenerator.getMainFiguresRow(FigureColor.Black);
-
-        expect(figures[0]).toBeInstanceOf(Rook);
-        expect(figures[1]).toBeInstanceOf(Horse);
-        expect(figures[2]).toBeInstanceOf(Bishop);
-        expect(figures[3]).toBeInstanceOf(Queen);
-        expect(figures[4]).toBeInstanceOf(King);
-
-        expect(figures[0].color).toEqual(FigureColor.Black);
+        expect(emptyLines[0][4]).toBeInstanceOf(King);
+        expect(emptyLines[7][4]).toBeInstanceOf(King);
     });
 });

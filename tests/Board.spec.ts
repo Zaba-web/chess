@@ -1,13 +1,12 @@
-import * as exp from "constants";
 import Board from "../src/Board";
 import Figure from "../src/Figures/Figure";
-import {Cell} from "../src/Typedefs";
+import {Cell, CellCoordinates} from "../src/Typedefs";
 
-describe("Board class should:", ()=>{
+describe("Board class:", ()=>{
     let board = new Board();
     
     beforeEach(()=>{
-        let board = new Board();
+        board = new Board();
     });
 
     test("return rows and columns properties", ()=>{
@@ -16,7 +15,6 @@ describe("Board class should:", ()=>{
     });
 
     test("return an array of cells", ()=>{
-        const testCell: Cell = false;
         expect(board.state.length).toEqual(board.rowsCount);
         expect(board.state[1].length).toEqual(board.columnsCount);
     });
@@ -26,15 +24,31 @@ describe("Board class should:", ()=>{
         expect(board.cellOffset).toBeGreaterThan(0);
     });
 
-    test("return value that contains selected cell on a board", ()=>{
-        expect(board.getCellContainment(0, 0)).toBeInstanceOf(Figure); // cell that contains a figure after initialization
-        expect(board.getCellContainment(4, 4)).toBeFalsy(); // empty cell
+    test("getCellContainment return value that contains selected cell on a board", ()=>{
+        const cellWithFigure: CellCoordinates = {row: 1, column: 0};
+        const emptyCell: CellCoordinates = {row: 4, column: 4};
+
+        expect(board.getCellContainment(cellWithFigure)).toBeInstanceOf(Figure); // cell that contains a figure after initialization
+        expect(board.getCellContainment(emptyCell)).toBeFalsy(); // empty cell
     });
 
-    test("move pawn from 6 0 to 5 0", ()=>{
-        board.tryToMakeMove(6, 0, 5, 0);
+    test("isCellCaptured return true", ()=>{
+        const cell: CellCoordinates = {row: 1, column: 0};
+        expect(board.isCellCaptured(cell)).toBeTruthy();
+    });
 
-        expect(board.getCellContainment(6, 0)).toBeFalsy();
-        expect(board.getCellContainment(5, 0)).toBeInstanceOf(Figure);
+    test("isCellCaptured return false", ()=>{
+        const cell: CellCoordinates = {row: 4, column: 4};
+        expect(board.isCellCaptured(cell)).toBeFalsy();
+    });
+
+    test("figure should be moved", ()=>{
+        const cell: CellCoordinates = {row: 1, column: 0};
+        expect(board.isCellCaptured(cell)).toBeTruthy();
+
+        const newCell: CellCoordinates = {row: 2, column: 0}
+        board.setFigurePosition(cell, newCell);
+
+        expect(board.isCellCaptured(cell)).toBeFalsy();
     });
 });
