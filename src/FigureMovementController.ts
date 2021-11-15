@@ -5,6 +5,7 @@ import FigureMovementPathTracer from "./FigureMovementPathTracer";
 import {CellCoordinates, FigureColor, FigureMoveData, MoveDirection } from "./Typedefs";
 import Pawn from "./Figures/Pawn";
 import Horse from "./Figures/Horse";
+import King from "./Figures/King";
 
 /**
  * Class that moves figures on a board
@@ -25,25 +26,46 @@ export default class FigureMovementController {
      */
     public makeMove(currentCell: CellCoordinates, newCell: CellCoordinates): boolean {
         const figureToMove = this.board.getCellContainment(currentCell) as Figure;
-        const moveDirection = this.determinateMoveDirection(newCell, figureToMove);
-        const {moveDirectionAllowed, madeMoveRange} = this.getFigureMoveAbilityData(figureToMove, moveDirection);
-   
-        if(this.checkAllowedSpecialMoves(currentCell, newCell, figureToMove)) {
-            return this.acceptMove(currentCell, newCell, figureToMove);
+
+        if (this.board.getCellContainment(newCell) instanceof King) {
+            return false;
         }
 
-        if(!moveDirectionAllowed) {
+        if (this.newCellCapturedByThisPlayer(newCell, figureToMove.color)) {
+            return false;
+        }
+        
+        if (this.checkMovePossibility(currentCell, newCell, figureToMove)) {
+            return this.acceptMove(currentCell, newCell, figureToMove);;
+        }
+
+        return false;
+    }
+    
+    public checkMovePossibility(currentCell: CellCoordinates, newCell: CellCoordinates, figureToMove: Figure, actualMove: boolean = true): boolean {
+        const moveDirection = this.determinateMoveDirection(newCell, figureToMove);
+        const {moveDirectionAllowed, madeMoveRange} = this.getFigureMoveAbilityData(figureToMove, moveDirection);
+
+        if (this.checkAllowedSpecialMoves(currentCell, newCell, figureToMove)) {
+            return true;
+        }
+
+        if (!moveDirectionAllowed) {
             return false;
         }
 
         const isPathClear = this.isMovePathClear(currentCell, newCell, moveDirection, madeMoveRange);
-        const moveAllowed = this.isMoveAllowed(newCell, figureToMove);
-        
+        const moveAllowed = this.isMoveAllowed(newCell, figureToMove, actualMove);
+
         if (isPathClear && moveAllowed) {
-            return this.acceptMove(currentCell, newCell, figureToMove);
+            return true
         }
     }
 
+    private newCellCapturedByThisPlayer(targetCell: CellCoordinates, playerColor: FigureColor): boolean {
+        return ((this.board.getCellContainment(targetCell) as Figure).color == playerColor);
+    }
+    
     /**
      * Check if selected figure has uncommon moves.
      * 
@@ -63,12 +85,17 @@ export default class FigureMovementController {
         if(figureToMove instanceof Horse) {
             return this.horseCanMove(currentCell, newCell);
         }
+
+        if(figureToMove instanceof King) {
+            return this.kingCanCastle(currentCell, newCell);
+        }
         
         return false;
     }
 
-    private isMoveAllowed (newCell: CellCoordinates, figure: Figure): boolean {
-        return figure.cellSuitableForMove(this.board.isCellCaptured(newCell), this.board.isCellUnderAttack(newCell));
+    private isMoveAllowed (newCell: CellCoordinates, figure: Figure, actualMove: boolean): boolean {
+        let isCellUnderAttack = actualMove ? this.board.isCellUnderAttack(newCell, figure.color) : false;
+        return figure.cellSuitableForMove(this.board.isCellCaptured(newCell), isCellUnderAttack);
     }
 
     /**
@@ -171,8 +198,8 @@ export default class FigureMovementController {
      * @param figureColor 
      * @returns 
      */
-    private pawnCanCapture(currentCell: CellCoordinates, targetCell: CellCoordinates, figureColor: FigureColor): boolean {
-        if (!(this.board.isCellCaptured(targetCell))) {
+    public pawnCanCapture(currentCell: CellCoordinates, targetCell: CellCoordinates, figureColor: FigureColor, actualMove: boolean = true): boolean {
+        if (!(this.board.isCellCaptured(targetCell)) && actualMove) {
             return false;
         }
 
@@ -194,7 +221,7 @@ export default class FigureMovementController {
      * @param targetCell 
      * @returns 
      */
-    private horseCanMove(currentCell: CellCoordinates, targetCell: CellCoordinates): boolean {
+     public horseCanMove(currentCell: CellCoordinates, targetCell: CellCoordinates): boolean {
         const rowDifference = Math.abs(currentCell.row - targetCell.row);
         const columnDifference = Math.abs(currentCell.column - targetCell.column);
         
@@ -203,6 +230,37 @@ export default class FigureMovementController {
         }
 
         return false;
+    }
+
+    private kingCanCastle(currentCell: CellCoordinates, targetCell: CellCoordinates): boolean {
+        if ((targetCell.column != 1) && (targetCell.column != this.board.columnsCount - 2)) {
+            return false;
+        }
+
+        const rookPosition = {
+            row: currentCell.row,
+            column: targetCell.column == 1 ? 0 : 7
+        }
+        
+        const king = this.board.getCellContainment(currentCell) as Figure;
+        const rook = this.board.getCellContainment(rookPosition) as Figure;
+
+        if (king.firstMoveDone || rook.firstMoveDone) {
+            return false;
+        } 
+        
+        if (this.checkMovePossibility(rook.position, king.position, rook)) {
+            const newRookPosition: CellCoordinates = {
+                row: currentCell.row,
+                column: targetCell.column == 1 ? 2 : 5
+            };
+
+            this.board.setFigurePosition(rookPosition, newRookPosition);
+            rook.moveDone();
+
+            return true;
+        }
+
     }
 
     /**
