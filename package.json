@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/Zaba-web/chess/issues"
   },
-  "homepage": "https://github.com/Zaba-web/chess#readme",
+  "homepage": "https://zaba-web.github.io/chess/",
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "@types/node": "^16.11.6",
