@@ -1,2 +1,2 @@
 # chess
-Simple chess implementation in TypeScript.
+Simple chess implementation written in TypeScript.
