@@ -8,7 +8,7 @@ export default abstract class Figure {
     private columnPosition: number;
     private _color: FigureColor;
     private objectModel: Object3D;
-    protected firstMoveDone: boolean;
+    public firstMoveDone: boolean;
 
     /**
      * 
