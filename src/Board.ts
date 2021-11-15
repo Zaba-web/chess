@@ -1,7 +1,10 @@
 import { FigureGenerator } from "./FigureGenerator";
 import Figure from "./Figures/Figure";
+import FigureMovementController from "./FigureMovementController";
 
-import {Cell, CellCoordinates} from "./Typedefs";
+import {Cell, CellCoordinates, FigureColor} from "./Typedefs";
+import Pawn from "./Figures/Pawn";
+import Horse from "./Figures/Horse";
 
 /**
  * Represents chess board
@@ -10,6 +13,7 @@ export default class Board {
     private readonly _rowsCount: number = 8;
     private readonly _columnsCount: number = 8;
     private figureGenerator: FigureGenerator;
+    private movementController: FigureMovementController;
     private  _state: Cell[][];
 
     public readonly cellOffset: number;
@@ -18,6 +22,7 @@ export default class Board {
         this.cellOffset = 3.5;
         this.figureGenerator = new FigureGenerator();
         this.initializeDefaultBoardState();
+        this.movementController = new FigureMovementController(this);
     }
 
     public get rowsCount(): number {
@@ -57,7 +62,40 @@ export default class Board {
      * @param cell cell to check
      * @returns 
      */
-    public isCellUnderAttack(cell: CellCoordinates): boolean {
+    public isCellUnderAttack(cell: CellCoordinates, figureColor: FigureColor): boolean {
+        for (let curerntRow: number = 0; curerntRow < this.rowsCount; curerntRow++) {
+            for (let currentColumn: number = 0; currentColumn < this.columnsCount; currentColumn++) {
+                    const currentCell = {
+                        row: curerntRow,
+                        column: currentColumn
+                    };
+
+                    if (this.getCellContainment(currentCell) == false) {
+                        continue;
+                    }
+
+                    const currentFigure = this.getCellContainment(currentCell) as Figure;
+
+                    if (currentFigure.color == figureColor || currentFigure.position.row <= -200) {
+                        continue;
+                    }
+
+                    let underAttack: boolean = false;
+
+                    if (currentFigure instanceof Pawn) {
+                        underAttack = this.movementController.pawnCanCapture(currentFigure.position, cell, currentFigure.color, false);
+                    } else if (currentFigure instanceof Horse) {
+                        underAttack = this.movementController.horseCanMove(currentFigure.position, cell);
+                    } else {
+                        underAttack = this.movementController.checkMovePossibility(currentFigure.position, cell, currentFigure, false);
+                    }
+                    
+                    if (underAttack) {
+                        return true;
+                    }
+            }
+        }
+        
         return false;
     }
 
