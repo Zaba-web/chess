@@ -1,6 +1,6 @@
 import Board from "../src/Board";
 import Figure from "../src/Figures/Figure";
-import {Cell, CellCoordinates} from "../src/Typedefs";
+import {Cell, CellCoordinates, FigureColor} from "../src/Typedefs";
 
 describe("Board class:", ()=>{
     let board = new Board();
@@ -50,5 +50,23 @@ describe("Board class:", ()=>{
         board.setFigurePosition(cell, newCell);
 
         expect(board.isCellCaptured(cell)).toBeFalsy();
+    });
+
+    test("cell should not be under attack", ()=>{
+        const cell = {
+            row: 4,
+            column: 0
+        };
+
+        expect(board.isCellUnderAttack(cell, FigureColor.Black)).toBeFalsy();
+    });
+
+    test("cell should be under attack", ()=>{
+        const cell = {
+            row: 2,
+            column: 0
+        };
+
+        expect(board.isCellUnderAttack(cell, FigureColor.White)).toBeTruthy();
     });
 });
