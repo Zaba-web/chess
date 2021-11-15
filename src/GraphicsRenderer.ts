@@ -61,7 +61,7 @@ export default class GraphicsRenderer {
      * @param board Board type object
      */
     public createBoardMesh(board: Board): THREE.Mesh {
-        const boardTextureBaseColor = this.textureLoader.load(`./assets/resources/textures/boardTexture.png`);
+        const boardTextureBaseColor = this.textureLoader.load(`./dist/assets/resources/textures/boardTexture.png`);
         boardTextureBaseColor.wrapS = THREE.RepeatWrapping;
         boardTextureBaseColor.wrapT = THREE.RepeatWrapping;
         boardTextureBaseColor.repeat.set(
