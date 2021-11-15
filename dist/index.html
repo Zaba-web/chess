@@ -7,7 +7,35 @@
     <title>Chess</title>
 </head>
 <body>
-    <style>*{margin:0; padding:0}</style>
+    <div class="game-data-container">
+        <p>
+            Current move by: <div class="current-player-color"></div>
+        </p>
+        <br>
+        <p>
+            Camera rotation: <br> <input type="button" class="camera-rotate-change-button" value = "Disabled">
+        </p>
+    </div>
+    <style>
+        *{
+            margin:0; 
+            padding:0
+        }
+
+        p{
+            color: #000;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .game-data-container{
+            position: fixed;
+            padding: 10px;
+            left: 0;
+            top: 0;
+            background-color: rgba(161, 232, 247, 0.4);
+            border-radius: 0px 0px 10px 0px;
+        }
+    </style>
     <script src="bundle.js"></script>
 </body>
 </html>
