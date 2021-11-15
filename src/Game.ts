@@ -22,12 +22,20 @@ export default class Game {
         row: null, 
         column: null
     };
+    private Kings: Figure[] = [];
+    private rotateCamera: boolean;
+    private currentPlayerUIText: HTMLDivElement;
+    private cameraRotationChangeButton: HTMLInputElement;
 
     constructor () {
         this.graphicsRenderer = new GraphicsRenderer();
         this.currentTurnBy = FigureColor.White;
         this.board = new Board();
         this.figureMovementController = new FigureMovementController(this.board);
+        this.rotateCamera = false;
+
+        this.currentPlayerUIText = document.querySelector(".current-player-color");
+        this.cameraRotationChangeButton = document.querySelector(".camera-rotate-change-button");
     }
 
     /**
@@ -37,6 +45,15 @@ export default class Game {
         this.boardMesh = this.graphicsRenderer.createBoardMesh(this.board);
         this.graphicsRenderer.createFiguresMesh(this.board);
         this.setUpClickEventListener();
+
+        this.Kings[FigureColor.White] = this.board.getCellContainment({row: 7,column: 4}) as Figure;
+        this.Kings[FigureColor.Black] = this.board.getCellContainment({row: 0,column: 4}) as Figure;
+
+        this.displayCurrentPlayer();
+
+        this.cameraRotationChangeButton.addEventListener("click", ()=>{
+            this.changeCameraRotationMode();
+        });
 
         // should be called after everything is setup
         this.graphicsRenderer.displayScene();
@@ -67,6 +84,16 @@ export default class Game {
         };
     }
 
+    private changeCameraRotationMode(): void {
+        this.rotateCamera = !this.rotateCamera;
+        this.cameraRotationChangeButton.value = this.rotateCamera ? "Enabled" : "Disabled";
+    }
+
+    private displayCurrentPlayer() {
+        const currentPlayerName = this.currentTurnBy == FigureColor.White ? "White" : "Black";
+        this.currentPlayerUIText.innerText = currentPlayerName;
+    }
+
     private handleCellClick(cell: CellCoordinates): void {
         const clickedCell = this.board.getCellContainment(cell);
 
@@ -94,9 +121,33 @@ export default class Game {
         }
 
         if (moveMade) {
-            this.resetSelectedCell();
-            this.changePlayer();
+            this.moveDone();
         }
+    }
+
+    private moveDone() {
+        this.resetSelectedCell();
+        this.changePlayer();
+        this.displayCurrentPlayer();
+
+        if(!this.isCheckTheKing(FigureColor.White) && !this.isCheckTheKing(FigureColor.Black)) {
+            this.graphicsRenderer.hideCheckMark();
+        }
+        
+        if (this.rotateCamera) {
+            this.graphicsRenderer.changeCameraSide();
+        }
+    }
+    
+    private isCheckTheKing(kingColor: FigureColor): boolean {
+        if(this.board.isCellUnderAttack(this.Kings[kingColor].position, kingColor)) {
+            this.showCheckMark(this.Kings[kingColor]);
+            return true;
+        }
+    }
+
+    private showCheckMark(king: Figure) {
+        this.graphicsRenderer.showCheckMark(king.position.column - this.board.cellOffset, king.position.row - this.board.cellOffset)
     }
 
     private selectCell(cell: CellCoordinates): void {
@@ -104,6 +155,8 @@ export default class Game {
             row: cell.row,
             column: cell.column
         };
+
+        this.graphicsRenderer.selectFigure(this.selectedCell.column - this.board.cellOffset, this.selectedCell.row - this.board.cellOffset);
     }
 
     private resetSelectedCell(): void {
@@ -111,6 +164,8 @@ export default class Game {
             row: null, 
             column: null
         };
+
+        this.graphicsRenderer.unselectFigure();
     }
 
     private noSelectedCell(): boolean {
