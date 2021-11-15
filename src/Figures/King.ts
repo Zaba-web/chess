@@ -49,6 +49,10 @@ export default class King extends Figure {
     }
 
     public cellSuitableForMove(cellCaptured: boolean, cellUnderAttack: boolean): boolean {
+        if (cellUnderAttack) {
+            return false;
+        }
+        
         return true;
     }
 }
