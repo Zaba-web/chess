@@ -17,6 +17,8 @@ export default class GraphicsRenderer {
     private textureLoader: THREE.TextureLoader;
     private cameraControls: OrbitControls;
     private objectLoader: OBJLoader;
+    private figureSelector: THREE.Object3D;
+    private checkMark: THREE.Object3D;
     
     /**
      * Field of view in degrees 
@@ -35,8 +37,12 @@ export default class GraphicsRenderer {
         this.renderer = this.createNewRenderer();
         this.textureLoader = this.createNewTextureLoader();
         this.objectLoader = this.createNewObjectLoader();
+        this.figureSelector = this.createFigureSelector();
+        this.checkMark = this.createKingCheckMark();
 
+        this.scene.add(this.figureSelector);
         this.scene.add(this.createNewLightSource());
+        this.scene.add(this.checkMark);
 
         // Orbit controls plugin. Adds camera movement by mouse
         this.cameraControls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -117,6 +123,10 @@ export default class GraphicsRenderer {
         }
     }
 
+    public changeCameraSide(): void {
+        this.camera.position.set(this.camera.position.x, this.camera.position.y, -this.camera.position.z);
+    }
+
     private createConreteFigure (figure: Figure, offset: number, color: number): void {
         this.objectLoader.load(figure.getFigureMeshURL(), (object)=>{
             const figurePosition = figure.position;
@@ -150,6 +160,63 @@ export default class GraphicsRenderer {
             figure.setObjectModel(object);
             this.scene.add(figure.getObjectModel());
         });
+    }
+
+    private createSelectorTypeMesh(color: number): THREE.Object3D {
+        const geomtery = new THREE.BoxGeometry(1, 2, 1);
+        const material = new THREE.MeshStandardMaterial({
+            color: color,
+            opacity: .3,
+            transparent: true
+        });
+
+        return new THREE.Mesh(geomtery, material);
+    }
+
+    private createFigureSelector(): THREE.Object3D {
+        const figureSelectorMesh = this.createSelectorTypeMesh(0xFFFFFF);
+        figureSelectorMesh.position.set(-200, 1, 0);
+
+        return figureSelectorMesh;
+    }
+
+    private createKingCheckMark(): THREE.Object3D {
+        const figureSelectorMesh = this.createSelectorTypeMesh(0xeda411);
+        figureSelectorMesh.position.set(-200, 1, 0);
+
+        return figureSelectorMesh;
+    }
+
+    /**
+     * Show selected figure
+     * @param x coordinate x
+     * @param z coordinate z
+     */
+    public selectFigure (x: number, z: number): void {
+        this.figureSelector.position.set(x, 1, z);
+    }
+    
+    /**
+     * Remove selection
+     */
+    public unselectFigure(): void {
+        this.figureSelector.position.set(-200, 1, 0);
+    }
+
+    /**
+     * Display check warning
+     * @param x coordinate x
+     * @param z coordinate z
+     */
+    public showCheckMark(x: number, z: number): void {
+        this.checkMark.position.set(x, 1, z);
+    }
+
+    /**
+     * Hide check warning
+     */
+    public hideCheckMark(): void {
+        this.checkMark.position.set(-200, 1, 0);
     }
 
     private animate(): void {
